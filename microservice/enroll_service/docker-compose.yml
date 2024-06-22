@@ -1,0 +1,20 @@
+version: "3"
+services:
+  enroll_rpc:
+    container_name: enroll_rpc
+    build: python/
+    restart: always
+    networks:
+      - microservice
+      - default
+
+networks:
+  default:
+    external:
+      name: enroll_network
+  microservice:
+    external:
+      name: microservice_network
+  webproxy:
+    external:
+      name: webproxy

@@ -8,9 +8,5 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 COPY rpc.py .
 COPY requirements.txt .
-COPY entrypoint.sh /app/entrypoint.sh
-RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
 CMD nameko run rpc --broker amqp://guest:guest@rabbitmq:5672

@@ -16,7 +16,6 @@ def api(student_item: Student):
     with ClusterRpcProxy(broker_cfg) as rpc:
         sid = rpc.student.insert(student_item.firstname, student_item.lastname, student_item.email)
         rpc.enroll.insert.call_async(sid, student_item.firstname, student_item.lastname)
-        rpc.email.send.call_async(sid, student_item.firstname, student_item.lastname, student_item.email)
 
         print(sid)
         return {'results': 'registered'}
