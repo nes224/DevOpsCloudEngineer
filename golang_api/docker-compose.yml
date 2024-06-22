@@ -1,6 +1,7 @@
 version: "3"
 services:
   app:
+    image: nes224/golang_app:latest
     container_name: golang_gateway
     build:
       context: .
@@ -10,7 +11,15 @@ services:
     volumes:
       - ./:/app
     command: air ./app/main.go -b 0.0.0.0
-    restart: always
+    networks:
+      - app_test
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
 
   nginx:
     container_name: "nginx_reverproxy"
@@ -21,3 +30,13 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
     ports:
       - "80:80"
+    networks:
+      - app_test
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  app_test:
+    driver: overlay
