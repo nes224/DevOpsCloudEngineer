@@ -2,11 +2,12 @@ import psycopg2
 from nameko.rpc import rpc
 
 def connect():
-    Dbconnect = psycopg2.connect(host='localhost',
+    Dbconnect = psycopg2.connect(
+                                host='localhost',
                                 user='root',
-                                passwd='secret',
-                                db='student_service',
-                                port=5434)
+                                password='secret',
+                                database='student_service',
+                                port=5432)
     return Dbconnect
 
 def insert(firstname, lastname, email):

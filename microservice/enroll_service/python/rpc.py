@@ -4,9 +4,9 @@ from nameko.rpc import rpc
 def connect():
     DBconnect = psycopg2.connect(host='localhost',
                                 user='root',
-                                passwd='secret',
-                                db='student_service',
-                                port=5434)
+                                password='secret',
+                                database='student_service',
+                                port=5432)
     
     return DBconnect
 

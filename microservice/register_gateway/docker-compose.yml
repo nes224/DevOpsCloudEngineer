@@ -4,8 +4,18 @@ services:
     container_name: register_gateway
     build: python/
     restart: always
+    expose:
+      - "7001"
+  
+  nginx:
+    container_name: nginx_reverproxy
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
     ports:
-      - "7001:80"
+      - "80:80"
 
 networks:
   default:
