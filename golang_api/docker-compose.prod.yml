@@ -1,0 +1,43 @@
+version: "3"
+services:
+  app:
+    image: nes224/golang_app:latest
+    container_name: golang_gateway
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    volumes:
+      - ./:/app
+    command: air ./app/main.go -b 0.0.0.0
+    networks:
+      - app-networks
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  nginx:
+    container_name: "nginx_reverproxy"
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - "80:80"
+    networks:
+      - app-networks
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  app-networks:
+    external:
+      name: app-networks

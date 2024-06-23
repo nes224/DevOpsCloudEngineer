@@ -13,8 +13,18 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func SignUpUser(user *models.SignUpInput, client *mongo.Client, collection *mongo.Collection, ctx context.Context) (*models.DBResponse, error) {
-	session, err := client.StartSession()
+type DatabaseImpl struct {
+	client     *mongo.Client
+	collection *mongo.Collection
+}
+
+func (db *DatabaseImpl) UserCollection(mongoclient *mongo.Client ,database string, collection string)  {
+	mongoclient.Database(database).Collection("users")
+}
+
+
+func (db *DatabaseImpl) SignUpUser(user *models.SignUpInput, ctx context.Context) (*models.DBResponse, error) {
+	session, err := db.client.StartSession()
 	if err != nil {
 		return nil, err
 	}
@@ -25,30 +35,30 @@ func SignUpUser(user *models.SignUpInput, client *mongo.Client, collection *mong
 		user.UpdatedAt = user.CreatedAt
 		user.Email = strings.ToLower(user.Email)
 		user.PasswordConfirm = ""
-		user.Verified = true
+		user.Verified = false
 		user.Role = "user"
-	
+
 		hashedPassword, _ := utils.HashPassword(user.Password)
 		user.Password = hashedPassword
 
-		res, err := collection.InsertOne(sessCtx, user)
+		res, err := db.collection.InsertOne(sessCtx, user)
 		if err != nil {
-			if er, ok := err.(mongo.WriteException); ok && er. WriteErrors[0].Code == 11000 {
+			if er, ok := err.(mongo.WriteException); ok && er.WriteErrors[0].Code == 11000 {
 				return nil, errors.New("user with that email already exists")
 			}
 			return nil, err
 		}
 		opt := options.Index().SetUnique(true)
-		index := mongo.IndexModel{Keys: bson.M{"email":1}, Options: opt}
-		if _, err := collection.Indexes().CreateOne(sessCtx, index); err != nil {
+		index := mongo.IndexModel{Keys: bson.M{"email": 1}, Options: opt}
+		if _, err := db.collection.Indexes().CreateOne(sessCtx, index); err != nil {
 			return nil, errors.New("could not create index for email")
 		}
 
 		var newUser *models.DBResponse
-		query := bson.M{"_id":res.InsertedID}
-		err = collection.FindOne(ctx, query).Decode(&newUser)
+		query := bson.M{"_id": res.InsertedID}
+		err = db.collection.FindOne(ctx, query).Decode(&newUser)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 		return newUser, nil
 	})
