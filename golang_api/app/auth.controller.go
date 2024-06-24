@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/nginx/models"
+	"github.com/golang/nginx/services"
 )
 
 func (server *Server) SignUpUser(ctx *gin.Context) {
@@ -19,7 +20,7 @@ func (server *Server) SignUpUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Passwords do not match"})
 		return
 	}
-	newUser, err := server.store.SignUpUser(user)
+	newUser, err := services.SignUpUser(user,ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "email already exist") {
 			ctx.JSON(http.StatusConflict, gin.H{"status": "error", "message": err.Error()})

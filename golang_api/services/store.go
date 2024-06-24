@@ -6,24 +6,31 @@ import (
 	"log"
 
 	"github.com/golang/nginx/config"
-	"github.com/golang/nginx/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+var client = Store()
+
 var (
-	ctx context.Context
+	ctx    context.Context
 )
 
-type Queries interface {
+func Transaction(callback func( ctx mongo.SessionContext) (any, error)) (any, error) {
+	session, err := client.StartSession()
+	if err != nil {
+		return nil, fmt.Errorf("failed creating session | %s", err.Error())
+	}
+	defer session.EndSession(context.TODO())
+	res, err := session.WithTransaction(ctx, callback)
+	if err != nil {
+		return nil, fmt.Errorf("failed executing transaction | %s", err.Error())
+	}
+	return res, nil
 }
 
-type Store interface {
-	SignUpUser(user *models.SignUpInput) (*models.DBResponse, error)
-}
-
-
-func StoreDb(uri string) {
+func Store() *mongo.Client {
 	config, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
@@ -42,5 +49,5 @@ func StoreDb(uri string) {
 	}
 
 	fmt.Println("MongoDB successfully connected...")
-
+	return mongoclient
 }

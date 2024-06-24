@@ -1,0 +1,26 @@
+version: "3"
+services:
+  db:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGODB_LOCAL_URI=mongodb://root:secret@localhost:27017/ssl=false&authSource=admin
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - golang-network
+
+volumes:
+  mongodb:
+
+networks:
+  golang-network:
+    external:
+      name: golang-network
+
+
