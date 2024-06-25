@@ -7,11 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/nginx/app"
 	"github.com/golang/nginx/config"
+	"github.com/golang/nginx/services"
 )
 
 var (
-	server *gin.Engine
-	ctx    context.Context
+	server  *gin.Engine
+	service services.ServiceStore
+	ctx     context.Context
 )
 
 func main() {

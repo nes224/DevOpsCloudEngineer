@@ -9,12 +9,13 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func FindUserById(id string, collection *mongo.Collection, ctx context.Context) (*models.DBResponse, error) {
-	oid, _ := primitive.ObjectIDFromHex(id)
+func FindUserById(id string, ctx context.Context) (*models.DBResponse, error) {
+	db := client.Database("golang_app").Collection("users")
 
+	oid, _ := primitive.ObjectIDFromHex(id)
 	var user *models.DBResponse
 	query := bson.M{"_id": oid}
-	err := collection.FindOne(ctx, query).Decode(&user)
+	err := db.FindOne(ctx, query).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return &models.DBResponse{}, err
@@ -24,10 +25,11 @@ func FindUserById(id string, collection *mongo.Collection, ctx context.Context) 
 	return user, nil
 }
 
-func FindUserByEmail(email string,collection *mongo.Collection, ctx context.Context) (*models.DBResponse, error) {
-	query := bson.M{"email":email}
+func FindUserByEmail(email string, ctx context.Context) (*models.DBResponse, error) {
+	db := client.Database("golang_app").Collection("users")
+	query := bson.M{"email": email}
 	var user *models.DBResponse
-	err := collection.FindOne(ctx, query).Decode(&user)
+	err := db.FindOne(ctx, query).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return &models.DBResponse{}, err

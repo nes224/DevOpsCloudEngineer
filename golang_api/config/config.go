@@ -18,6 +18,12 @@ type Config struct {
 	RefreshTokenPublic     string        `mapstructure:"REFRESH_TOKEN_PUBLIC_KEY"`
 	RefreshTokenExpiresIn  time.Duration `mapstructure:"REFRESH_TOKEN_EXPIRED_IN"`
 	RefreshTokenMaxAge     int           `mapstructure:"REFRESH_TOKEN_MAXAGE"`
+
+	EmailFrom string `mapstructure:"EMAIL_FROM"`
+	SMTPHost  string `mapstructure:"SMTP_HOST"`
+	SMTPPass  string `mapstructure:"SMTP_PASS"`
+	SMTPPort  int    `mapstructure:"SMTP_PORT"`
+	SMTPUser  string `mapstructure:"SMTP_USER"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
